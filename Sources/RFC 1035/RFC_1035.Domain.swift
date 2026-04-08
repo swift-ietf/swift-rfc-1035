@@ -5,7 +5,7 @@
 //  Created by Coen ten Thije Boonkkamp on 20/11/2025.
 //
 
-public import ASCII
+public import ASCII_Serializer_Primitives
 
 extension RFC_1035 {
     /// RFC 1035 compliant domain name
