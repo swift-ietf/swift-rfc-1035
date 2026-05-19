@@ -88,8 +88,8 @@ extension RFC_1035.Domain: Binary.ASCII.Serializable {
     public static func serialize<Buffer: RangeReplaceableCollection>(
         ascii domain: Self,
         into buffer: inout Buffer
-    ) where Buffer.Element == UInt8 {
-        buffer.append(contentsOf: domain.rawValue.utf8)
+    ) where Buffer.Element == Byte {
+        buffer.append(contentsOf: Array<Byte>(domain.rawValue.utf8))
     }
 
     /// Parses a domain name from canonical byte representation (CANONICAL PRIMITIVE)
@@ -125,7 +125,7 @@ extension RFC_1035.Domain: Binary.ASCII.Serializable {
     /// - Parameter bytes: The ASCII byte representation of the domain
     /// - Throws: `RFC_1035.Domain.Error` if the bytes are malformed
     public init<Bytes: Collection>(ascii bytes: Bytes, in context: Void) throws(Error)
-    where Bytes.Element == UInt8 {
+    where Bytes.Element == Byte {
         // Empty check
         guard !bytes.isEmpty else {
             throw Error.empty
@@ -142,7 +142,7 @@ extension RFC_1035.Domain: Binary.ASCII.Serializable {
         var currentIndex = bytes.startIndex
 
         while currentIndex < bytes.endIndex {
-            if bytes[currentIndex] == .ascii.period {
+            if bytes[currentIndex] == ASCII.Code.period {
                 // Found a dot - extract label
                 if currentStart < currentIndex {
                     let labelBytes = bytes[currentStart..<currentIndex]

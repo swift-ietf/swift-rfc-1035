@@ -30,7 +30,7 @@ extension RFC_1035.Domain.Label {
         case tooLong(_ length: Int, label: String)
 
         /// Label contains invalid characters (must be letters, digits, or hyphens)
-        case invalidCharacters(_ label: String, byte: UInt8, reason: String)
+        case invalidCharacters(_ label: String, byte: Byte, reason: String)
 
         /// Label starts with a hyphen (RFC 1035 violation)
         case startsWithHyphen(_ label: String)

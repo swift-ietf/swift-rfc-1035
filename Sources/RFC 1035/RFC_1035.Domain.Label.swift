@@ -88,8 +88,8 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
     public static func serialize<Buffer: RangeReplaceableCollection>(
         ascii label: Self,
         into buffer: inout Buffer
-    ) where Buffer.Element == UInt8 {
-        buffer.append(contentsOf: label.rawValue.utf8)
+    ) where Buffer.Element == Byte {
+        buffer.append(contentsOf: Array<Byte>(label.rawValue.utf8))
     }
 
     /// Parses a domain label from canonical byte representation (CANONICAL PRIMITIVE)
@@ -126,7 +126,7 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
     /// - Parameter bytes: The ASCII byte representation of the label
     /// - Throws: `RFC_1035.Domain.Label.Error` if the bytes are malformed
     public init<Bytes: Collection>(ascii bytes: Bytes, in context: Void) throws(Error)
-    where Bytes.Element == UInt8 {
+    where Bytes.Element == Byte {
         guard let firstByte = bytes.first else {
             throw Error.empty
         }
@@ -138,7 +138,8 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
             count += 1
             lastByte = byte
 
-            let validInterior = byte.ascii.isLetter || byte.ascii.isDigit || byte == .ascii.hyphen
+            let code = ASCII.Code(byte)
+            let validInterior = code.isLetter || code.isDigit || byte == ASCII.Code.hyphen
             guard validInterior else {
                 let string = String(decoding: bytes, as: UTF8.self)
                 throw Error.invalidCharacters(
@@ -154,11 +155,12 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
             throw Error.tooLong(count, label: string)
         }
 
-        guard firstByte.ascii.isLetter else {
+        let firstCode = ASCII.Code(firstByte)
+        guard firstCode.isLetter else {
             let string = String(decoding: bytes, as: UTF8.self)
-            if firstByte == .ascii.hyphen {
+            if firstByte == ASCII.Code.hyphen {
                 throw Error.startsWithHyphen(string)
-            } else if firstByte.ascii.isDigit {
+            } else if firstCode.isDigit {
                 throw Error.startsWithDigit(string)
             } else {
                 throw Error.invalidCharacters(
@@ -169,9 +171,10 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
             }
         }
 
-        guard lastByte.ascii.isLetter || lastByte.ascii.isDigit else {
+        let lastCode = ASCII.Code(lastByte)
+        guard lastCode.isLetter || lastCode.isDigit else {
             let string = String(decoding: bytes, as: UTF8.self)
-            if lastByte == .ascii.hyphen {
+            if lastByte == ASCII.Code.hyphen {
                 throw Error.endsWithHyphen(string)
             } else {
                 throw Error.invalidCharacters(
