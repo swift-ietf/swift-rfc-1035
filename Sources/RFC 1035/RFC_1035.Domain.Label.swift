@@ -139,7 +139,7 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
             lastByte = byte
 
             let code = ASCII.Code(byte)
-            let validInterior = code.isLetter || code.isDigit || byte == ASCII.Code.hyphen
+            let validInterior = code.isLetter || code.isDigit || code == ASCII.Code.hyphen
             guard validInterior else {
                 let string = String(decoding: bytes, as: UTF8.self)
                 throw Error.invalidCharacters(
@@ -158,7 +158,7 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
         let firstCode = ASCII.Code(firstByte)
         guard firstCode.isLetter else {
             let string = String(decoding: bytes, as: UTF8.self)
-            if firstByte == ASCII.Code.hyphen {
+            if firstCode == ASCII.Code.hyphen {
                 throw Error.startsWithHyphen(string)
             } else if firstCode.isDigit {
                 throw Error.startsWithDigit(string)
@@ -174,7 +174,7 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
         let lastCode = ASCII.Code(lastByte)
         guard lastCode.isLetter || lastCode.isDigit else {
             let string = String(decoding: bytes, as: UTF8.self)
-            if lastByte == ASCII.Code.hyphen {
+            if lastCode == ASCII.Code.hyphen {
                 throw Error.endsWithHyphen(string)
             } else {
                 throw Error.invalidCharacters(

@@ -142,7 +142,7 @@ extension RFC_1035.Domain: Binary.ASCII.Serializable {
         var currentIndex = bytes.startIndex
 
         while currentIndex < bytes.endIndex {
-            if bytes[currentIndex] == ASCII.Code.period {
+            if ASCII.Code(bytes[currentIndex]) == ASCII.Code.period {
                 // Found a dot - extract label
                 if currentStart < currentIndex {
                     let labelBytes = bytes[currentStart..<currentIndex]
