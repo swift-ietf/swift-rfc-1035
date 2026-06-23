@@ -142,7 +142,10 @@ extension RFC_1035.Domain: Binary.ASCII.Serializable {
         var currentIndex = bytes.startIndex
 
         while currentIndex < bytes.endIndex {
-            if ASCII.Code(bytes[currentIndex]) == ASCII.Code.period {
+            // Period detection is a pure equality check — compare bytes directly.
+            // A non-ASCII byte is simply not a period; it flows into the current
+            // label, where Label(ascii:) yields the proper invalid-label error.
+            if bytes[currentIndex] == ASCII.Code.period.byte {
                 // Found a dot - extract label
                 if currentStart < currentIndex {
                     let labelBytes = bytes[currentStart..<currentIndex]

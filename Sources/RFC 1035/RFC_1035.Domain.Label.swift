@@ -138,7 +138,20 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
             count += 1
             lastByte = byte
 
-            let code = ASCII.Code(byte)
+            // A byte outside the 7-bit ASCII range cannot be a valid label
+            // character; ASCII.Code(_:) throws for it, mapping to the same
+            // invalid-character error as a wrong-category ASCII byte.
+            let code: ASCII.Code
+            do {
+                code = try ASCII.Code(byte)
+            } catch {
+                let string = String(decoding: bytes, as: UTF8.self)
+                throw Error.invalidCharacters(
+                    string,
+                    byte: byte,
+                    reason: "Only letters, digits, and hyphens allowed"
+                )
+            }
             let validInterior = code.isLetter || code.isDigit || code == ASCII.Code.hyphen
             guard validInterior else {
                 let string = String(decoding: bytes, as: UTF8.self)
@@ -155,7 +168,19 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
             throw Error.tooLong(count, label: string)
         }
 
-        let firstCode = ASCII.Code(firstByte)
+        // A non-ASCII first byte cannot start a label; map ASCII.Code(_:)'s
+        // throw to the generic "must start with a letter" invalid-character error.
+        let firstCode: ASCII.Code
+        do {
+            firstCode = try ASCII.Code(firstByte)
+        } catch {
+            let string = String(decoding: bytes, as: UTF8.self)
+            throw Error.invalidCharacters(
+                string,
+                byte: firstByte,
+                reason: "Must start with a letter"
+            )
+        }
         guard firstCode.isLetter else {
             let string = String(decoding: bytes, as: UTF8.self)
             if firstCode == ASCII.Code.hyphen {
@@ -171,7 +196,19 @@ extension RFC_1035.Domain.Label: Binary.ASCII.Serializable {
             }
         }
 
-        let lastCode = ASCII.Code(lastByte)
+        // A non-ASCII last byte cannot end a label; map ASCII.Code(_:)'s throw
+        // to the generic "must end with a letter or digit" invalid-character error.
+        let lastCode: ASCII.Code
+        do {
+            lastCode = try ASCII.Code(lastByte)
+        } catch {
+            let string = String(decoding: bytes, as: UTF8.self)
+            throw Error.invalidCharacters(
+                string,
+                byte: lastByte,
+                reason: "Must end with a letter or digit"
+            )
+        }
         guard lastCode.isLetter || lastCode.isDigit else {
             let string = String(decoding: bytes, as: UTF8.self)
             if lastCode == ASCII.Code.hyphen {
