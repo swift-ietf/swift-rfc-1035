@@ -11,6 +11,7 @@ extension Target.Dependency {
     static var standards: Self { .product(name: "Standard Library Extensions", package: "swift-standard-library-extensions") }
     static var binary: Self { .product(name: "Binary Primitives", package: "swift-binary-primitives") }
     static var incits41986: Self { .product(name: "ASCII Serializer Primitives", package: "swift-ascii-serializer-primitives") }
+    static var asciiParser: Self { .product(name: "Parseable ASCII Primitives", package: "swift-ascii-parser-primitives") }
 }
 
 let package = Package(
@@ -28,7 +29,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/swift-primitives/swift-standard-library-extensions.git", branch: "main"),
         .package(url: "https://github.com/swift-primitives/swift-binary-primitives.git", branch: "main"),
-        .package(url: "https://github.com/swift-primitives/swift-ascii-serializer-primitives.git", branch: "main")
+        .package(url: "https://github.com/swift-primitives/swift-ascii-serializer-primitives.git", branch: "main"),
+        .package(url: "https://github.com/swift-primitives/swift-ascii-parser-primitives.git", branch: "main")
     ],
     targets: [
         .target(
@@ -36,7 +38,8 @@ let package = Package(
             dependencies: [
                 .standards,
                 .binary,
-                .incits41986
+                .incits41986,
+                .asciiParser
             ]
         ),
         .testTarget(
