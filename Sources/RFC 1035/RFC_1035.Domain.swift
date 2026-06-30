@@ -82,13 +82,25 @@ extension RFC_1035.Domain: Hashable {
     }
 }
 
-extension RFC_1035.Domain: Swift.RawRepresentable, Serializable, ASCII.Serializable, Binary.Serializable {
+extension RFC_1035.Domain: Swift.RawRepresentable, ASCII.Serializable, Binary.Serializable {
     /// Creates a domain by validating `rawValue`, or `nil` if it is not a valid RFC 1035 domain.
     ///
     /// Re-provides the `Swift.RawRepresentable` requirement (previously inherited
     /// from the retired combined ASCII serializable protocol).
     public init?(rawValue: String) {
         try? self.init(rawValue)
+    }
+
+    /// Serializes `value` as ASCII bytes into `buffer`.
+    ///
+    /// Own `ASCII.Serializable` witness (Phase D): emits the domain's ASCII
+    /// octets directly from `rawValue`, replacing the transitional default that
+    /// routed conformers through the retired canonical `Serializable` tier.
+    public static func serialize<Buffer: RangeReplaceableCollection>(
+        _ value: Self,
+        into buffer: inout Buffer
+    ) where Buffer.Element == ASCII.Code {
+        for byte in value.rawValue.utf8 { buffer.append(ASCII.Code(byte)) }
     }
 
     /// Serializes `value` as ASCII bytes into `buffer`.
