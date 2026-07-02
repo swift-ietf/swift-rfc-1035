@@ -1,6 +1,6 @@
 # Swift RFC 1035
 
-[![CI](https://github.com/swift-standards/swift-rfc-1035/workflows/CI/badge.svg)](https://github.com/swift-standards/swift-rfc-1035/actions/workflows/ci.yml)
+[![CI](https://github.com/swift-ietf/swift-rfc-1035/workflows/CI/badge.svg)](https://github.com/swift-ietf/swift-rfc-1035/actions/workflows/ci.yml)
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
 
 Swift implementation of RFC 1035: Domain Names - Implementation and Specification.
@@ -26,7 +26,7 @@ Add swift-rfc-1035 to your package dependencies:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-standards/swift-rfc-1035.git", from: "0.1.0")
+    .package(url: "https://github.com/swift-ietf/swift-rfc-1035.git", from: "0.4.5")
 ]
 ```
 
@@ -161,7 +161,7 @@ let decoded = try JSONDecoder().decode(Domain.self, from: encoded)
 ## Related Packages
 
 ### Used By
-- [swift-rfc-1123](https://github.com/swift-standards/swift-rfc-1123) - RFC 1123 compliant hostnames building on RFC 1035 domains
+- [swift-rfc-1123](https://github.com/swift-ietf/swift-rfc-1123) - RFC 1123 compliant hostnames building on RFC 1035 domains
 
 ## Requirements
 
