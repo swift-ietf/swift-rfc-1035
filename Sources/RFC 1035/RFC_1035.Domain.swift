@@ -191,7 +191,7 @@ extension RFC_1035.Domain: ASCII.Parseable {
                 // Found a dot - extract label
                 if currentStart < currentIndex {
                     let labelBytes = bytes[currentStart..<currentIndex]
-                    do {
+                    do throws(Label.Error) {
                         try labels.append(RFC_1035.Domain.Label(ascii: labelBytes))
                     } catch {
                         throw Error.invalidLabel(error)
@@ -205,7 +205,7 @@ extension RFC_1035.Domain: ASCII.Parseable {
         // Handle final label (after last dot or entire string if no dots)
         if currentStart < bytes.endIndex {
             let labelBytes = bytes[currentStart...]
-            do {
+            do throws(Label.Error) {
                 try labels.append(RFC_1035.Domain.Label(ascii: labelBytes))
             } catch {
                 throw Error.invalidLabel(error)
@@ -259,7 +259,7 @@ extension RFC_1035.Domain {
     public func addingSubdomain(_ components: [String]) throws(Error) -> RFC_1035.Domain {
         var newLabels: [Label] = []
         for component in components {
-            do {
+            do throws(Label.Error) {
                 try newLabels.append(Label(component))
             } catch {
                 throw Error.invalidLabel(error)
