@@ -33,27 +33,47 @@ struct `DNS RDATA and message structure` {
         let owner = try RFC_1035.Domain("example.com")
 
         let ns = Record(
-            name: owner, type: .ns, `class`: .internet, ttl: 3600,
+            name: owner,
+            type: .ns,
+            `class`: .internet,
+            ttl: 3600,
             data: .ns(try RFC_1035.Domain("ns1.example.com"))
         )
         let cname = Record(
-            name: try RFC_1035.Domain("www.example.com"), type: .cname, `class`: .internet,
-            ttl: 300, data: .cname(owner)
+            name: try RFC_1035.Domain("www.example.com"),
+            type: .cname,
+            `class`: .internet,
+            ttl: 300,
+            data: .cname(owner)
         )
         let ptr = Record(
-            name: owner, type: .ptr, `class`: .internet, ttl: 60,
+            name: owner,
+            type: .ptr,
+            `class`: .internet,
+            ttl: 60,
             data: .ptr(try RFC_1035.Domain("host.example.com"))
         )
         let mx = Record(
-            name: owner, type: .mx, `class`: .internet, ttl: 3600,
+            name: owner,
+            type: .mx,
+            `class`: .internet,
+            ttl: 3600,
             data: .mx(preference: 10, exchange: try RFC_1035.Domain("mail.example.com"))
         )
         let txt = Record(
-            name: owner, type: .txt, `class`: .internet, ttl: 3600,
-            data: .txt([try RFC_1035.CharacterString("v=spf1 -all"), try RFC_1035.CharacterString("hello")])
+            name: owner,
+            type: .txt,
+            `class`: .internet,
+            ttl: 3600,
+            data: .txt([
+                try RFC_1035.CharacterString("v=spf1 -all"), try RFC_1035.CharacterString("hello"),
+            ])
         )
         let soa = Record(
-            name: owner, type: .soa, `class`: .internet, ttl: 3600,
+            name: owner,
+            type: .soa,
+            `class`: .internet,
+            ttl: 3600,
             data: .soa(
                 RFC_1035.ResourceRecord.SOA(
                     mname: try RFC_1035.Domain("ns1.example.com"),
@@ -67,11 +87,17 @@ struct `DNS RDATA and message structure` {
             )
         )
         let a = Record(
-            name: owner, type: .a, `class`: .internet, ttl: 3600,
+            name: owner,
+            type: .a,
+            `class`: .internet,
+            ttl: 3600,
             data: .a(RFC_1035.ResourceRecord.A(93, 184, 216, 34))
         )
         let opaque = Record(
-            name: owner, type: RFC_1035.RecordType(rawValue: 99), `class`: .internet, ttl: 3600,
+            name: owner,
+            type: RFC_1035.RecordType(rawValue: 99),
+            `class`: .internet,
+            ttl: 3600,
             data: .opaque([Byte(0xDE), Byte(0xAD), Byte(0xBE), Byte(0xEF)])
         )
 
@@ -88,12 +114,17 @@ struct `DNS RDATA and message structure` {
         #expect(parsed.answers[0].data == .ns(try RFC_1035.Domain("ns1.example.com")))
         #expect(parsed.answers[1].data == .cname(owner))
         #expect(parsed.answers[2].data == .ptr(try RFC_1035.Domain("host.example.com")))
-        #expect(parsed.answers[3].data == .mx(preference: 10, exchange: try RFC_1035.Domain("mail.example.com")))
+        #expect(
+            parsed.answers[3].data
+                == .mx(preference: 10, exchange: try RFC_1035.Domain("mail.example.com"))
+        )
         #expect(parsed.answers[6].data == .a(RFC_1035.ResourceRecord.A(93, 184, 216, 34)))
 
         // Unknown TYPE preserved verbatim, and its type code survives.
         #expect(parsed.answers[7].type == RFC_1035.RecordType(rawValue: 99))
-        #expect(parsed.answers[7].data == .opaque([Byte(0xDE), Byte(0xAD), Byte(0xBE), Byte(0xEF)]))
+        #expect(
+            parsed.answers[7].data == .opaque([Byte(0xDE), Byte(0xAD), Byte(0xBE), Byte(0xEF)])
+        )
     }
 
     @Test
@@ -105,10 +136,15 @@ struct `DNS RDATA and message structure` {
             try RFC_1035.CharacterString("third chunk"),
         ]
         let record = Record(
-            name: owner, type: .txt, `class`: .internet, ttl: 3600, data: .txt(strings)
+            name: owner,
+            type: .txt,
+            `class`: .internet,
+            ttl: 3600,
+            data: .txt(strings)
         )
         let message = RFC_1035.Message(
-            header: RFC_1035.Message.Header(id: 1, kind: .response), answers: [record]
+            header: RFC_1035.Message.Header(id: 1, kind: .response),
+            answers: [record]
         )
 
         let parsed = try RFC_1035.Message(binary: message.bytes)

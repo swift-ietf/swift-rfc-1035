@@ -48,8 +48,8 @@ func dnsHexString(_ bytes: [Byte]) -> String {
 
 private func hexDigit(_ nibble: UInt8) -> Character {
     nibble < 10
-        ? Character(Unicode.Scalar(nibble + 0x30))          // '0'...'9'
-        : Character(Unicode.Scalar(nibble - 10 + 0x61))     // 'a'...'f'
+        ? Character(Unicode.Scalar(nibble + 0x30))  // '0'...'9'
+        : Character(Unicode.Scalar(nibble - 10 + 0x61))  // 'a'...'f'
 }
 
 /// The captured wire vectors (contiguous hex, no separators).

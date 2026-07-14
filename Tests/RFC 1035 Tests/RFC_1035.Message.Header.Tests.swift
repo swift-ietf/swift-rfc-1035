@@ -61,7 +61,9 @@ struct `DNS message header bit packing` {
             Header(
                 id: 0,
                 kind: .query,
-                options: [.authoritativeAnswer, .truncation, .recursionDesired, .recursionAvailable]
+                options: [
+                    .authoritativeAnswer, .truncation, .recursionDesired, .recursionAvailable,
+                ]
             ).flags == 0x0780
         )
     }
