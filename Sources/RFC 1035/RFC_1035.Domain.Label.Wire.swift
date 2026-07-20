@@ -30,7 +30,7 @@
 // validation in `init(ascii:)`; strictness remains the presentation-layer
 // default and is simply no longer applied to decoded wire names.
 
-public import Binary_Serializable_Primitives
+internal import Binary_Serializable_Primitives
 
 extension RFC_1035.Domain.Label {
     /// Creates a label from raw DNS wire octets, without preferred-syntax
