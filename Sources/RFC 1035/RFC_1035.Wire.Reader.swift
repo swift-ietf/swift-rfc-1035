@@ -143,7 +143,7 @@ extension RFC_1035.Wire.Reader {
                     totalLength += 1
                     if !followedPointer { cursorAfter = position + 1 }
                     index = cursorAfter
-                    return try Self.assemble(rawLabels)
+                    return Self.assemble(rawLabels)
                 }
                 let labelStart = position + 1
                 let labelEnd = labelStart + labelLength
@@ -176,28 +176,27 @@ extension RFC_1035.Wire.Reader {
         }
     }
 
-    /// Assembles collected label octets into a ``RFC_1035/Domain``, mapping the
-    /// presentation-layer validation errors onto wire errors.
-    private static func assemble(
-        _ rawLabels: [[Byte]]
-    ) throws(RFC_1035.Wire.Error) -> RFC_1035.Domain {
-        guard !rawLabels.isEmpty else { throw .rootName }
+    /// Assembles collected label octets into a ``RFC_1035/Domain`` using the
+    /// wire-form label codec.
+    ///
+    /// Wire names carry arbitrary-octet labels bounded only by the 63-octet
+    /// label and 255-octet name limits (both already enforced by ``name()``),
+    /// and a bare zero octet is the root — so assembly cannot fail, and the
+    /// strict RFC 1035 Section 2.3.1 preferred-syntax validation is *not*
+    /// applied here (it remains the presentation-layer parsers' default).
+    private static func assemble(_ rawLabels: [[Byte]]) -> RFC_1035.Domain {
+        guard !rawLabels.isEmpty else { return .root }
 
         var labels: [RFC_1035.Domain.Label] = []
         labels.reserveCapacity(rawLabels.count)
         for raw in rawLabels {
-            do throws(RFC_1035.Domain.Label.Error) {
-                try labels.append(RFC_1035.Domain.Label(ascii: raw))
-            } catch {
-                throw .invalidLabel(error)
-            }
+            labels.append(RFC_1035.Domain.Label(wire: raw))
         }
-
-        do throws(RFC_1035.Domain.Error) {
-            return try RFC_1035.Domain(labels: labels)
-        } catch {
-            throw .invalidDomain(error)
-        }
+        return RFC_1035.Domain(
+            __unchecked: (),
+            rawValue: labels.map(\.rawValue).joined(separator: "."),
+            labels: labels
+        )
     }
 }
 

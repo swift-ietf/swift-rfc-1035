@@ -46,16 +46,26 @@ extension RFC_1035.Message {
         /// An assembled domain name exceeded 255 octets.
         case nameTooLong
 
-        /// A name resolved to the root (bare zero octet), which
-        /// ``RFC_1035/Domain`` cannot represent. See the known-limitation note
-        /// on the package: the presentation-form ``RFC_1035/Domain`` requires at
-        /// least one label, so the root name has no representation.
+        /// A name resolved to the root (bare zero octet).
+        ///
+        /// No longer thrown: since fable-448 F-001 the root name decodes to
+        /// ``RFC_1035/Domain/root``. The case is retained for source
+        /// compatibility.
         case unsupportedRootName
 
         /// A label's octets failed ``RFC_1035/Domain/Label`` validation.
+        ///
+        /// No longer thrown: wire names are no longer forced through the
+        /// strict RFC 1035 Section 2.3.1 preferred-syntax presentation
+        /// validation (fable-448 F-001). The case is retained for source
+        /// compatibility; presentation parsing still throws
+        /// ``RFC_1035/Domain/Label/Error`` directly.
         case invalidLabel(RFC_1035.Domain.Label.Error)
 
         /// Assembled labels failed ``RFC_1035/Domain`` composition validation.
+        ///
+        /// No longer thrown (see ``invalidLabel(_:)``); retained for source
+        /// compatibility.
         case invalidDomain(RFC_1035.Domain.Error)
 
         /// The bytes consumed decoding structured `RDATA` did not equal the
@@ -79,9 +89,6 @@ extension RFC_1035.Message.Error {
         case .pointerNotBackward: self = .pointerNotBackward
         case .pointerLoop: self = .pointerLoop
         case .nameTooLong: self = .nameTooLong
-        case .rootName: self = .unsupportedRootName
-        case .invalidLabel(let error): self = .invalidLabel(error)
-        case .invalidDomain(let error): self = .invalidDomain(error)
         case .rdataLengthMismatch: self = .rdataLengthMismatch
         case .nonzeroReserved: self = .nonzeroReserved
         }

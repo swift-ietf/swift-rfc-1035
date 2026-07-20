@@ -301,6 +301,19 @@ extension RFC_1035.Domain {
     }
 }
 
+// MARK: - Root
+
+extension RFC_1035.Domain {
+    /// The root domain name (zero labels), presentation form `"."`.
+    ///
+    /// The DNS wire format represents the root as a bare zero octet
+    /// (RFC 1035 Section 3.1); the wire reader decodes it to this value and
+    /// the wire writer serializes it back to a single zero octet. The strict
+    /// presentation parsers (`init(_:)` / `init(ascii:)`) continue to require
+    /// at least one label.
+    public static let root = RFC_1035.Domain(__unchecked: (), rawValue: ".", labels: [])
+}
+
 // MARK: - Convenience Initializers
 
 extension RFC_1035.Domain {

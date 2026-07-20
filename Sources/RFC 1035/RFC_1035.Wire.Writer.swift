@@ -34,11 +34,9 @@ extension RFC_1035.Wire {
         into buffer: inout Buffer
     ) where Buffer.Element == Byte {
         for label in domain.labels {
-            let labelBytes = Array(label.rawValue.utf8)
+            let labelBytes = label.wireOctets
             buffer.append(Byte(UInt8(labelBytes.count)))
-            for octet in labelBytes {
-                buffer.append(Byte(octet))
-            }
+            buffer.append(contentsOf: labelBytes)
         }
         buffer.append(Byte(0))
     }

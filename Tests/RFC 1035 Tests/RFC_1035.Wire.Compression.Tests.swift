@@ -114,11 +114,11 @@ struct `DNS name compression and label parsing` {
     }
 
     @Test
-    func `rejects the root name as unrepresentable`() {
-        // A bare zero octet is the root; RFC_1035.Domain cannot represent it.
-        #expect(throws: RFC_1035.Wire.Error.rootName) {
-            _ = try readName("00")
-        }
+    func `decodes the root name`() throws {
+        // A bare zero octet is the root name (fable-448 F-001: previously
+        // rejected as unrepresentable).
+        let domain = try readName("00")
+        #expect(domain == RFC_1035.Domain.root)
     }
 
     @Test

@@ -46,17 +46,6 @@ extension RFC_1035.Wire {
         /// An assembled name exceeded the 255-octet limit (RFC 1035 Section 2.3.4).
         case nameTooLong
 
-        /// A name resolved to the root (a bare zero octet). ``RFC_1035/Domain``
-        /// cannot represent the empty / root name, so it has no representation
-        /// here.
-        case rootName
-
-        /// A label's octets failed ``RFC_1035/Domain/Label`` validation.
-        case invalidLabel(RFC_1035.Domain.Label.Error)
-
-        /// Assembled labels failed ``RFC_1035/Domain`` composition validation.
-        case invalidDomain(RFC_1035.Domain.Error)
-
         /// The bytes consumed while parsing structured `RDATA` did not equal the
         /// record's `RDLENGTH`.
         case rdataLengthMismatch
