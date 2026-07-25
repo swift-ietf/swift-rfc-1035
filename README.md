@@ -1,7 +1,7 @@
 # Swift RFC 1035
 
-[![CI](https://github.com/swift-ietf/swift-rfc-1035/workflows/CI/badge.svg)](https://github.com/swift-ietf/swift-rfc-1035/actions/workflows/ci.yml)
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
+[![CI](https://github.com/swift-ietf/swift-rfc-1035/workflows/CI/badge.svg)](https://github.com/swift-ietf/swift-rfc-1035/actions/workflows/ci.yml)
 
 Swift implementation of RFC 1035: Domain Names - Implementation and Specification.
 
