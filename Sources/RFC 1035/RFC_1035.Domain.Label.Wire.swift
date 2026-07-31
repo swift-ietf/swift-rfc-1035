@@ -50,8 +50,10 @@ extension RFC_1035.Domain.Label {
             case 0x2E, 0x5C:  // '.' and '\' — presentation metacharacters
                 presentation.append("\\")
                 presentation.append(Character(Unicode.Scalar(value)))
+
             case 0x21...0x7E:  // printable ASCII, stored literally
                 presentation.append(Character(Unicode.Scalar(value)))
+
             default:  // non-printable / non-ASCII — \DDD decimal escape
                 presentation.append("\\")
                 let decimal = String(value)
@@ -83,7 +85,8 @@ extension RFC_1035.Domain.Label {
             if index + 3 < scalars.count,
                 (0x30...0x39).contains(next),
                 (0x30...0x39).contains(scalars[index + 2]),
-                (0x30...0x39).contains(scalars[index + 3]) {
+                (0x30...0x39).contains(scalars[index + 3])
+            {
                 // \DDD — three decimal digits, one octet.
                 let value =
                     UInt16(next - 0x30) * 100

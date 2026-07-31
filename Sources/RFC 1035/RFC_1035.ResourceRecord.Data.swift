@@ -82,17 +82,22 @@ extension RFC_1035.ResourceRecord.Data: Binary.Serializable {
         switch value {
         case .a(let address):
             RFC_1035.ResourceRecord.A.serialize(address, into: &buffer)
+
         case .ns(let name), .cname(let name), .ptr(let name):
             RFC_1035.Wire.appendName(name, into: &buffer)
+
         case .mx(let preference, let exchange):
             buffer.append(contentsOf: preference.bytes(endianness: .big))
             RFC_1035.Wire.appendName(exchange, into: &buffer)
+
         case .txt(let strings):
             for string in strings {
                 RFC_1035.CharacterString.serialize(string, into: &buffer)
             }
+
         case .soa(let soa):
             RFC_1035.ResourceRecord.SOA.serialize(soa, into: &buffer)
+
         case .opaque(let bytes):
             buffer.append(contentsOf: bytes)
         }
