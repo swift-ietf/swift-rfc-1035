@@ -88,7 +88,11 @@ extension RFC_1035.Domain.Label: Swift.RawRepresentable, ASCII.Serializable, Bin
     /// Re-provides the `Swift.RawRepresentable` requirement (previously inherited
     /// from the retired combined ASCII serializable protocol).
     public init?(rawValue: String) {
-        try? self.init(rawValue)
+        do throws(Error) {
+            try self.init(rawValue)
+        } catch {
+            return nil
+        }
     }
 
     /// Serializes `value` as ASCII bytes into `buffer`.
