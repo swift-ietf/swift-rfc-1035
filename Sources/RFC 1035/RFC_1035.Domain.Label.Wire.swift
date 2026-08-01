@@ -41,7 +41,7 @@ extension RFC_1035.Domain.Label {
     /// the two presentation metacharacters `.` and `\`, are stored escaped in
     /// the RFC 1035 Section 5.1 master-file form (`\.`, `\\`, `\DDD`) so the
     /// presentation `rawValue` remains byte-faithful and reversible.
-    init(wire octets: some Collection<Byte>) {
+    init(wire octets: some Swift.Collection<Byte>) {
         var presentation = ""
         presentation.reserveCapacity(octets.count)
         for octet in octets {

@@ -125,7 +125,7 @@ extension RFC_1035.Message {
     /// declared sections are rejected with ``Error/trailingData(_:)``.
     ///
     /// - Throws: ``RFC_1035/Message/Error`` on any malformed structure.
-    public init<Bytes: Collection>(binary bytes: Bytes) throws(RFC_1035.Message.Error)
+    public init<Bytes: Swift.Collection>(binary bytes: Bytes) throws(RFC_1035.Message.Error)
     where Bytes.Element == Byte {
         var reader = RFC_1035.Wire.Reader(Array(bytes))
 
