@@ -1,43 +1,13 @@
-// ===----------------------------------------------------------------------===//
-//
-// Copyright (c) 2025 Coen ten Thije Boonkkamp
-// Licensed under Apache License v2.0
-//
-// See LICENSE.txt for license information
-// See CONTRIBUTORS.txt for the list of project contributors
-//
-// SPDX-License-Identifier: Apache-2.0
-//
-// ===----------------------------------------------------------------------===//
-
-// RFC_1035.Wire.Reader.swift
-// swift-rfc-1035
-//
-// DNS message wire codec: message-context cursor
-
 internal import Binary_Serializable_Primitives
 
 extension RFC_1035.Wire {
-    /// A cursor over a **complete** DNS message that decodes the wire forms of
-    /// RFC 1035 Section 4.
-    ///
-    /// Unlike a self-contained field reader, this reader is constructed over the
-    /// entire message because compression pointers (RFC 1035 Section 4.1.4)
-    /// reference offsets from the start of the message. ``name()`` resolves
-    /// those pointers against the full backing buffer while the public cursor
-    /// (``index``) advances only past the bytes physically consumed at the
-    /// current position.
-    ///
-    /// All reads throw ``RFC_1035/Wire/Error`` on exhaustion, malformed
-    /// structure, or a compression-pointer violation.
+
     struct Reader {
-        /// The full message bytes. Compression offsets index into this buffer.
+
         let bytes: [Byte]
 
-        /// The current read offset from the start of the message.
         private(set) var index: Int
 
-        /// Creates a reader positioned at the start of a complete message.
         init(_ bytes: [Byte]) {
             self.bytes = bytes
             self.index = 0
@@ -45,27 +15,22 @@ extension RFC_1035.Wire {
     }
 }
 
-// MARK: - Primitive reads
-
 extension RFC_1035.Wire.Reader {
-    /// Whether every byte has been consumed.
+
     var isAtEnd: Bool { index >= bytes.count }
 
-    /// Reads a single octet, advancing the cursor.
     mutating func byte() throws(RFC_1035.Wire.Error) -> UInt8 {
         guard index < bytes.count else { throw .truncated }
         defer { index += 1 }
         return bytes[index].underlying
     }
 
-    /// Reads a big-endian `uint16`.
     mutating func uint16() throws(RFC_1035.Wire.Error) -> UInt16 {
         let hi = try byte()
         let lo = try byte()
         return (UInt16(hi) << 8) | UInt16(lo)
     }
 
-    /// Reads a big-endian `uint32`.
     mutating func uint32() throws(RFC_1035.Wire.Error) -> UInt32 {
         let a = try byte()
         let b = try byte()
@@ -74,7 +39,6 @@ extension RFC_1035.Wire.Reader {
         return (UInt32(a) << 24) | (UInt32(b) << 16) | (UInt32(c) << 8) | UInt32(d)
     }
 
-    /// Reads `count` raw octets, advancing the cursor.
     mutating func take(_ count: Int) throws(RFC_1035.Wire.Error) -> [Byte] {
         guard count >= 0, bytes.count - index >= count else { throw .truncated }
         let slice = bytes[index..<index + count]
@@ -82,47 +46,21 @@ extension RFC_1035.Wire.Reader {
         return Array(slice)
     }
 
-    /// Asserts the reader has consumed all of its input.
     func expectEnd() throws(RFC_1035.Wire.Error) {
         guard isAtEnd else { throw .trailingData(bytes.count - index) }
     }
 }
 
-// MARK: - Name reads (RFC 1035 Section 3.1 / 4.1.4)
-
 extension RFC_1035.Wire.Reader {
-    /// The pointer/label discriminant mask (the high two bits of a length octet).
+
     private static var discriminantMask: UInt8 { 0xC0 }
 
-    /// A label length octet (high two bits `0b00`).
     private static var labelDiscriminant: UInt8 { 0x00 }
 
-    /// A compression pointer (high two bits `0b11`).
     private static var pointerDiscriminant: UInt8 { 0xC0 }
 
-    /// The label-length mask (the low six bits of a length octet).
     private static var lengthMask: UInt8 { 0x3F }
 
-    /// Reads a domain name, resolving compression pointers.
-    ///
-    /// A name is a sequence of length-prefixed labels terminated by a zero
-    /// octet, optionally ending in — or consisting solely of — a compression
-    /// pointer (RFC 1035 Section 4.1.4). This method:
-    ///
-    /// - rejects the reserved label discriminants `0b01` and `0b10`
-    ///   (``RFC_1035/Wire/Error/reservedLabelBits``);
-    /// - requires each pointer to point strictly backward relative to its own
-    ///   position (``RFC_1035/Wire/Error/pointerNotBackward``), which kills
-    ///   forward references and self-pointers;
-    /// - requires a chain of followed pointers to strictly decrease in position
-    ///   (``RFC_1035/Wire/Error/pointerLoop``), which kills multi-hop loops;
-    /// - caps the assembled length at 255 octets
-    ///   (``RFC_1035/Wire/Error/nameTooLong``), which independently bounds total
-    ///   work and thus guarantees termination.
-    ///
-    /// After the name is read, ``index`` is left just past the first pointer
-    /// encountered, or just past the terminating zero octet if no pointer was
-    /// used — never inside the pointed-to region.
     mutating func name() throws(RFC_1035.Wire.Error) -> RFC_1035.Domain {
         var rawLabels: [[Byte]] = []
         var totalLength = 0
@@ -139,7 +77,7 @@ extension RFC_1035.Wire.Reader {
             case Self.labelDiscriminant:
                 let labelLength = Int(lengthOctet & Self.lengthMask)
                 if labelLength == 0 {
-                    // Root terminator: the zero octet counts toward the length.
+
                     totalLength += 1
                     if !followedPointer { cursorAfter = position + 1 }
                     index = cursorAfter
@@ -170,20 +108,12 @@ extension RFC_1035.Wire.Reader {
                 position = offset
 
             default:
-                // Reserved discriminants 0b01 / 0b10 (RFC 1035 Section 4.1.4).
+
                 throw .reservedLabelBits
             }
         }
     }
 
-    /// Assembles collected label octets into a ``RFC_1035/Domain`` using the
-    /// wire-form label codec.
-    ///
-    /// Wire names carry arbitrary-octet labels bounded only by the 63-octet
-    /// label and 255-octet name limits (both already enforced by ``name()``),
-    /// and a bare zero octet is the root — so assembly cannot fail, and the
-    /// strict RFC 1035 Section 2.3.1 preferred-syntax validation is *not*
-    /// applied here (it remains the presentation-layer parsers' default).
     private static func assemble(_ rawLabels: [[Byte]]) -> RFC_1035.Domain {
         guard !rawLabels.isEmpty else { return .root }
 
@@ -200,10 +130,8 @@ extension RFC_1035.Wire.Reader {
     }
 }
 
-// MARK: - Structural reads (RFC 1035 Section 4.1)
-
 extension RFC_1035.Wire.Reader {
-    /// Reads one question section entry (RFC 1035 Section 4.1.2).
+
     mutating func question() throws(RFC_1035.Wire.Error) -> RFC_1035.Question {
         let name = try self.name()
         let type = RFC_1035.RecordType(rawValue: try uint16())
@@ -211,8 +139,6 @@ extension RFC_1035.Wire.Reader {
         return RFC_1035.Question(name: name, type: type, class: recordClass)
     }
 
-    /// Reads one resource record (RFC 1035 Section 4.1.3), decoding its `RDATA`
-    /// by TYPE and verifying the consumed length equals `RDLENGTH`.
     mutating func resourceRecord() throws(RFC_1035.Wire.Error) -> RFC_1035.ResourceRecord {
         let name = try self.name()
         let type = RFC_1035.RecordType(rawValue: try uint16())
@@ -234,21 +160,13 @@ extension RFC_1035.Wire.Reader {
         )
     }
 
-    /// Reads one `<character-string>` (RFC 1035 Section 3.3): a single length
-    /// octet followed by that many content octets.
     mutating func characterString() throws(RFC_1035.Wire.Error) -> RFC_1035.CharacterString {
         let length = Int(try byte())
         let content = try take(length)
-        // `length` came from a single octet, so it is at most 255 — the
-        // <character-string> invariant holds without a validated init.
+
         return RFC_1035.CharacterString(__unchecked: (), bytes: content)
     }
 
-    /// Decodes `RDATA` by TYPE (RFC 1035 Sections 3.3 / 3.4).
-    ///
-    /// Recognized self-contained formats are decoded to typed cases; every other
-    /// TYPE is preserved as ``RFC_1035/ResourceRecord/Data/opaque(_:)``. Names
-    /// inside name-bearing formats resolve compression pointers via ``name()``.
     private mutating func recordData(
         type: RFC_1035.RecordType,
         rdlength: Int,

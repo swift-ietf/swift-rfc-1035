@@ -1,21 +1,3 @@
-// ===----------------------------------------------------------------------===//
-//
-// Copyright (c) 2025 Coen ten Thije Boonkkamp
-// Licensed under Apache License v2.0
-//
-// See LICENSE.txt for license information
-// See CONTRIBUTORS.txt for the list of project contributors
-//
-// SPDX-License-Identifier: Apache-2.0
-//
-// ===----------------------------------------------------------------------===//
-
-// RFC_1035.Message.CapturedVectors.Tests.swift
-// swift-rfc-1035 tests
-//
-// Real DNS wire vectors captured live from 1.1.1.1 as the parse/serialize
-// oracle (RFC 1035 Section 4).
-
 import Binary_Serializable_Primitives
 import Testing
 
@@ -23,8 +5,6 @@ import Testing
 
 @Suite
 struct `DNS captured wire vectors` {
-
-    // MARK: - Byte-exact query round-trips
 
     @Test
     func `example.com A query serializes byte-exactly`() throws {
@@ -62,8 +42,6 @@ struct `DNS captured wire vectors` {
         #expect(reparsed == message)
     }
 
-    // MARK: - Response parsing (compression-pointer resolution)
-
     @Test
     func `example.com A response parses with resolved answer names`() throws {
         let wire = dnsHexBytes(DNSVectors.responseExampleA)
@@ -87,7 +65,6 @@ struct `DNS captured wire vectors` {
         #expect(message.questions[0].type == .a)
         #expect(message.questions[0].`class` == .internet)
 
-        // Both answer owner names are c00c pointers back to the question name.
         #expect(message.answers[0].name == expectedName)
         #expect(message.answers[1].name == expectedName)
         #expect(message.answers[0].ttl == 29)
@@ -108,7 +85,7 @@ struct `DNS captured wire vectors` {
             return
         }
         #expect(rdata0.count == 16)
-        // The 16-octet IPv6 address 2606:4700:0010:0000:0000:0000:ac42:93f3.
+
         #expect(rdata0 == dnsHexBytes("260647000010000000000000ac4293f3"))
     }
 
@@ -127,8 +104,6 @@ struct `DNS captured wire vectors` {
         #expect(message.answers[1].data == .a(RFC_1035.ResourceRecord.A(172, 66, 147, 243)))
     }
 
-    // MARK: - Logical (structural) response round-trips
-
     @Test
     func `responses round-trip logically through uncompressed re-serialization`() throws {
         for hex in [
@@ -142,10 +117,8 @@ struct `DNS captured wire vectors` {
             let reserialized = message.bytes
             let reparsed = try RFC_1035.Message(binary: reserialized)
 
-            // Structural equality holds across the round-trip...
             #expect(reparsed == message)
-            // ...but the re-serialized form is uncompressed, hence longer and
-            // NOT byte-identical to the captured (compressed) wire.
+
             #expect(reserialized.count > original.count)
             #expect(reserialized != original)
         }

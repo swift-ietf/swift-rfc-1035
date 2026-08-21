@@ -1,20 +1,3 @@
-// ===----------------------------------------------------------------------===//
-//
-// Copyright (c) 2025 Coen ten Thije Boonkkamp
-// Licensed under Apache License v2.0
-//
-// See LICENSE.txt for license information
-// See CONTRIBUTORS.txt for the list of project contributors
-//
-// SPDX-License-Identifier: Apache-2.0
-//
-// ===----------------------------------------------------------------------===//
-
-// RFC_1035.Message.Header.Tests.swift
-// swift-rfc-1035 tests
-//
-// Header flags-word bit packing (RFC 1035 Section 4.1.1).
-
 import Testing
 
 @testable import RFC_1035
@@ -23,8 +6,6 @@ import Testing
 struct `DNS message header bit packing` {
 
     private typealias Header = RFC_1035.Message.Header
-
-    // MARK: - QR bit
 
     @Test
     func `query has QR clear`() {
@@ -36,8 +17,6 @@ struct `DNS message header bit packing` {
         #expect(Header(id: 0x1234, kind: .response).flags == 0x8000)
     }
 
-    // MARK: - OPCODE field
-
     @Test
     func `opcode packs into bits 11 through 14`() {
         #expect(Header(id: 0, kind: .query, opcode: .query).flags == 0x0000)
@@ -48,8 +27,6 @@ struct `DNS message header bit packing` {
                 == 0x7800
         )
     }
-
-    // MARK: - AA / TC / RD / RA flags
 
     @Test
     func `each option bit occupies its RFC 1035 position`() {
@@ -68,8 +45,6 @@ struct `DNS message header bit packing` {
         )
     }
 
-    // MARK: - RCODE field
-
     @Test
     func `rcode packs into the low four bits`() {
         #expect(Header(id: 0, kind: .query, rcode: .noError).flags == 0x0000)
@@ -84,11 +59,9 @@ struct `DNS message header bit packing` {
         )
     }
 
-    // MARK: - Z (reserved) bits
-
     @Test
     func `flags never emits the reserved Z bits`() {
-        // Even with every other field maxed, bits 4-6 stay zero.
+
         let header = Header(
             id: 0xFFFF,
             kind: .response,
@@ -108,8 +81,6 @@ struct `DNS message header bit packing` {
             }
         }
     }
-
-    // MARK: - Encode / decode round-trip
 
     @Test
     func `decodes the captured response flags word`() throws {

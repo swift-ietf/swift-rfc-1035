@@ -1,57 +1,15 @@
-//
-//  RFC_1035.Domain.swift
-//  swift-rfc-1035
-//
-//  Created by Coen ten Thije Boonkkamp on 20/11/2025.
-//
-
 public import ASCII_Serializer_Primitives
 public import Binary_Serializable_Primitives
 public import Parseable_ASCII_Primitives
 
 extension RFC_1035 {
-    /// RFC 1035 compliant domain name
-    ///
-    /// Represents a fully qualified domain name as defined by RFC 1035 Section 2.3.4.
-    /// Domain names consist of labels separated by dots, with strict length and format constraints.
-    ///
-    /// ## RFC 1035 Constraints
-    ///
-    /// Per RFC 1035 Section 2.3.4:
-    /// - Maximum 255 octets total length
-    /// - Maximum 127 labels
-    /// - Each label follows RFC 1035 Section 2.3.1 rules
-    ///
-    /// ## Example
-    ///
-    /// ```swift
-    /// let domain = try RFC_1035.Domain("www.example.com")
-    /// print(domain.tld) // "com"
-    /// print(domain.sld) // "example"
-    /// ```
-    ///
-    /// ## RFC Reference
-    ///
-    /// From RFC 1035 Section 2.3.4:
-    ///
-    /// > The total number of octets that represent a domain name (i.e.,
-    /// > the sum of all label octets and label lengths) is limited to 255.
+
     public struct Domain: Sendable, Codable {
-        /// The domain name as a string
+
         public let rawValue: String
 
-        /// The labels that make up the domain name, from least significant to most significant
         package let labels: [RFC_1035.Domain.Label]
 
-        /// Creates a domain WITHOUT validation
-        ///
-        /// **Warning**: Bypasses RFC 1035 validation.
-        /// Only use with compile-time constants or pre-validated values.
-        ///
-        /// - Parameters:
-        ///   - unchecked: Void parameter to prevent accidental use
-        ///   - rawValue: The raw domain name (unchecked)
-        ///   - labels: Pre-validated labels
         init(
             __unchecked _: Void,
             rawValue: String,
@@ -63,30 +21,23 @@ extension RFC_1035 {
     }
 }
 
-// MARK: - Hashable
-
 extension RFC_1035.Domain: Hashable {
-    /// Hash value (case-insensitive per RFC 1035)
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(rawValue.lowercased())
     }
 
-    /// Equality comparison (case-insensitive per RFC 1035)
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
     }
 
-    /// Equality comparison with raw value (case-insensitive)
     public static func == (lhs: Self, rhs: Self.RawValue) -> Bool {
         lhs.rawValue.lowercased() == rhs.lowercased()
     }
 }
 
 extension RFC_1035.Domain: Swift.RawRepresentable, ASCII.Serializable, Binary.Serializable {
-    /// Creates a domain by validating `rawValue`, or `nil` if it is not a valid RFC 1035 domain.
-    ///
-    /// Re-provides the `Swift.RawRepresentable` requirement (previously inherited
-    /// from the retired combined ASCII serializable protocol).
+
     public init?(rawValue: String) {
         do throws(Error) {
             try self.init(rawValue)
@@ -95,11 +46,6 @@ extension RFC_1035.Domain: Swift.RawRepresentable, ASCII.Serializable, Binary.Se
         }
     }
 
-    /// Serializes `value` as ASCII bytes into `buffer`.
-    ///
-    /// Own `ASCII.Serializable` witness (Phase D): emits the domain's ASCII
-    /// octets directly from `rawValue`, replacing the transitional default that
-    /// routed conformers through the retired canonical `Serializable` tier.
     public static func serialize<Buffer: RangeReplaceableCollection>(
         _ value: Self,
         into buffer: inout Buffer
@@ -107,13 +53,6 @@ extension RFC_1035.Domain: Swift.RawRepresentable, ASCII.Serializable, Binary.Se
         for byte in value.rawValue.utf8 { buffer.append(ASCII.Code(byte)) }
     }
 
-    /// Serializes `value` as ASCII bytes into `buffer`.
-    ///
-    /// Explicit `Binary.Serializable` witness: disambiguates the two
-    /// constraint-incomparable `serialize(_:into:)` defaults (the RawRepresentable
-    /// default vs the W0 ASCII bridge) — a conformer-declared member out-ranks both.
-    /// The bytes derive from the free `[ASCII.Code]` serializer supplied by the
-    /// `String`-RawRepresentable default (`.serialized`).
     public static func serialize<Buffer: RangeReplaceableCollection>(
         _ value: Self,
         into buffer: inout Buffer
@@ -123,76 +62,37 @@ extension RFC_1035.Domain: Swift.RawRepresentable, ASCII.Serializable, Binary.Se
 }
 
 extension RFC_1035.Domain: CustomStringConvertible {
-    /// The domain's ASCII serialization decoded as a `String`.
+
     public var description: String {
         String(decoding: serialized, as: UTF8.self)
     }
 }
 
 extension RFC_1035.Domain: ASCII.Parseable {
-    /// Creates a domain by validating `string`'s UTF-8 bytes as ASCII.
-    ///
-    /// Re-provides the string convenience initializer (previously inherited from
-    /// the retired combined ASCII serializable protocol, Void context).
+
     public init(_ string: some StringProtocol) throws(Error) {
         try self.init(ascii: [Byte](string.utf8))
     }
 
-    /// Parses a domain name from canonical byte representation (CANONICAL PRIMITIVE)
-    ///
-    /// This is the primitive parser that works at the byte level.
-    /// RFC 1035 domain names are ASCII-only, dot-separated labels.
-    ///
-    /// ## RFC 1035 Compliance
-    ///
-    /// Per RFC 1035 Section 2.3.4:
-    /// - Maximum 255 octets total
-    /// - Maximum 127 labels
-    /// - Labels separated by dots (0x2E)
-    ///
-    /// ## Category Theory
-    ///
-    /// This is the fundamental parsing transformation:
-    /// - **Domain**: [UInt8] (ASCII bytes)
-    /// - **Codomain**: RFC_1035.Domain (structured data)
-    ///
-    /// String-based parsing is derived as composition:
-    /// ```
-    /// String → [UInt8] (UTF-8 bytes) → Domain
-    /// ```
-    ///
-    /// ## Example
-    ///
-    /// ```swift
-    /// let bytes = Array("www.example.com".utf8)
-    /// let domain = try RFC_1035.Domain(ascii: bytes)
-    /// ```
-    ///
-    /// - Parameter bytes: The ASCII byte representation of the domain
-    /// - Throws: `RFC_1035.Domain.Error` if the bytes are malformed
     public init<Bytes: Swift.Collection>(ascii bytes: Bytes) throws(Error)
     where Bytes.Element == Byte {
-        // Empty check
+
         guard !bytes.isEmpty else {
             throw Error.empty
         }
 
-        // Length check (RFC 1035: max 255 octets)
         guard bytes.count <= Limits.maxLength else {
             throw Error.tooLong(bytes.count)
         }
 
-        // Split on dots (0x2E) and parse each label
         var labels: [RFC_1035.Domain.Label] = []
         var currentStart = bytes.startIndex
         var currentIndex = bytes.startIndex
 
         while currentIndex < bytes.endIndex {
-            // Period detection is a pure equality check — compare bytes directly.
-            // A non-ASCII byte is simply not a period; it flows into the current
-            // label, where Label(ascii:) yields the proper invalid-label error.
+
             if bytes[currentIndex] == ASCII.Code.period.byte {
-                // Found a dot - extract label
+
                 if currentStart < currentIndex {
                     let labelBytes = bytes[currentStart..<currentIndex]
                     do throws(Label.Error) {
@@ -206,7 +106,6 @@ extension RFC_1035.Domain: ASCII.Parseable {
             currentIndex = bytes.index(after: currentIndex)
         }
 
-        // Handle final label (after last dot or entire string if no dots)
         if currentStart < bytes.endIndex {
             let labelBytes = bytes[currentStart...]
             do throws(Label.Error) {
@@ -216,12 +115,10 @@ extension RFC_1035.Domain: ASCII.Parseable {
             }
         }
 
-        // Must have at least one label
         guard !labels.isEmpty else {
             throw Error.empty
         }
 
-        // Check label count (RFC 1035: max 127 labels)
         guard labels.count <= Limits.maxLabels else {
             throw Error.tooManyLabels
         }
@@ -236,30 +133,27 @@ extension RFC_1035.Domain: ASCII.Parseable {
 }
 
 extension RFC_1035.Domain {
-    /// The complete domain name as a string
+
     public var name: String {
         rawValue
     }
 
-    /// The top-level domain (rightmost label)
     public var tld: RFC_1035.Domain.Label? {
         labels.last
     }
 
-    /// The second-level domain (second from right)
     public var sld: RFC_1035.Domain.Label? {
         labels.dropLast().last
     }
 }
 
 extension RFC_1035.Domain {
-    /// Returns true if this is a subdomain of the given domain
+
     public func isSubdomain(of parent: RFC_1035.Domain) -> Bool {
         guard labels.count > parent.labels.count else { return false }
         return labels.suffix(parent.labels.count) == parent.labels
     }
 
-    /// Creates a subdomain by prepending new labels
     public func addingSubdomain(_ components: [String]) throws(Error) -> RFC_1035.Domain {
         var newLabels: [Label] = []
         for component in components {
@@ -283,12 +177,10 @@ extension RFC_1035.Domain {
         return RFC_1035.Domain(__unchecked: (), rawValue: newName, labels: allLabels)
     }
 
-    /// Creates a subdomain by prepending new labels
     public func addingSubdomain(_ components: String...) throws(Error) -> RFC_1035.Domain {
         try addingSubdomain(components)
     }
 
-    /// Returns the parent domain by removing the leftmost label
     public func parent() throws(Error) -> RFC_1035.Domain? {
         guard labels.count > 1 else { return nil }
         let parentLabels = Array(labels.dropFirst())
@@ -296,7 +188,6 @@ extension RFC_1035.Domain {
         return RFC_1035.Domain(__unchecked: (), rawValue: parentName, labels: parentLabels)
     }
 
-    /// Returns the root domain (tld + sld)
     public func root() throws(Error) -> RFC_1035.Domain? {
         guard labels.count >= 2 else { return nil }
         let rootLabels = Array(labels.suffix(2))
@@ -305,25 +196,13 @@ extension RFC_1035.Domain {
     }
 }
 
-// MARK: - Root
-
 extension RFC_1035.Domain {
-    /// The root domain name (zero labels), presentation form `"."`.
-    ///
-    /// The DNS wire format represents the root as a bare zero octet
-    /// (RFC 1035 Section 3.1); the wire reader decodes it to this value and
-    /// the wire writer serializes it back to a single zero octet. The strict
-    /// presentation parsers (`init(_:)` / `init(ascii:)`) continue to require
-    /// at least one label.
+
     public static let root = RFC_1035.Domain(__unchecked: (), rawValue: ".", labels: [])
 }
 
-// MARK: - Convenience Initializers
-
 extension RFC_1035.Domain {
-    /// Initialize with an array of validated labels
-    ///
-    /// Labels are already validated, so this only performs compositional validation.
+
     public init(labels: [RFC_1035.Domain.Label]) throws(Error) {
         guard !labels.isEmpty else {
             throw Error.empty
@@ -341,7 +220,6 @@ extension RFC_1035.Domain {
         self.init(__unchecked: (), rawValue: name, labels: labels)
     }
 
-    /// Initialize with an array of string labels
     public init<S: Swift.Sequence>(labels labelStrings: S) throws(Error)
     where S.Element: StringProtocol {
         var validatedLabels: [Label] = []
@@ -355,12 +233,10 @@ extension RFC_1035.Domain {
         try self.init(labels: validatedLabels)
     }
 
-    /// Creates a domain from root level components
     public static func root(_ sld: String, _ tld: String) throws(Error) -> RFC_1035.Domain {
         try RFC_1035.Domain(labels: [sld, tld])
     }
 
-    /// Creates a subdomain with components in most-to-least significant order
     public static func subdomain(_ components: String...) throws(Error) -> RFC_1035.Domain {
         try RFC_1035.Domain(labels: components.reversed())
     }

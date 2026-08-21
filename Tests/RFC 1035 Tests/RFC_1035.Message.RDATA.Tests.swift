@@ -1,21 +1,3 @@
-// ===----------------------------------------------------------------------===//
-//
-// Copyright (c) 2025 Coen ten Thije Boonkkamp
-// Licensed under Apache License v2.0
-//
-// See LICENSE.txt for license information
-// See CONTRIBUTORS.txt for the list of project contributors
-//
-// SPDX-License-Identifier: Apache-2.0
-//
-// ===----------------------------------------------------------------------===//
-
-// RFC_1035.Message.RDATA.Tests.swift
-// swift-rfc-1035 tests
-//
-// Typed RDATA round-trips (RFC 1035 Sections 3.3 / 3.4) and message-level
-// structural errors (RFC 1035 Section 4.1).
-
 import Binary_Serializable_Primitives
 import Testing
 
@@ -25,8 +7,6 @@ import Testing
 struct `DNS RDATA and message structure` {
 
     private typealias Record = RFC_1035.ResourceRecord
-
-    // MARK: - Typed RDATA round-trips
 
     @Test
     func `every typed RDATA format round-trips through the wire`() throws {
@@ -110,7 +90,6 @@ struct `DNS RDATA and message structure` {
         #expect(parsed == message)
         #expect(parsed.answers.count == 8)
 
-        // Spot-check that each format decoded to the right case/value.
         #expect(parsed.answers[0].data == .ns(try RFC_1035.Domain("ns1.example.com")))
         #expect(parsed.answers[1].data == .cname(owner))
         #expect(parsed.answers[2].data == .ptr(try RFC_1035.Domain("host.example.com")))
@@ -120,7 +99,6 @@ struct `DNS RDATA and message structure` {
         )
         #expect(parsed.answers[6].data == .a(RFC_1035.ResourceRecord.A(93, 184, 216, 34)))
 
-        // Unknown TYPE preserved verbatim, and its type code survives.
         #expect(parsed.answers[7].type == RFC_1035.RecordType(rawValue: 99))
         #expect(
             parsed.answers[7].data == .opaque([Byte(0xDE), Byte(0xAD), Byte(0xBE), Byte(0xEF)])
@@ -151,8 +129,6 @@ struct `DNS RDATA and message structure` {
         #expect(parsed.answers[0].data == .txt(strings))
     }
 
-    // MARK: - Message-level structural errors
-
     @Test
     func `truncation at every offset is rejected`() throws {
         let full = dnsHexBytes(DNSVectors.queryExampleA)
@@ -175,7 +151,7 @@ struct `DNS RDATA and message structure` {
 
     @Test
     func `an ANCOUNT smaller than the records present leaves trailing data`() {
-        // Response has ANCOUNT=2; force it to 1 (offset 6-7 in the header).
+
         var bytes = dnsHexBytes(DNSVectors.responseExampleA)
         bytes[7] = Byte(0x01)
         #expect(throws: RFC_1035.Message.Error.trailingData(16)) {
@@ -194,15 +170,13 @@ struct `DNS RDATA and message structure` {
 
     @Test
     func `a nonzero Z bit in the header is rejected`() {
-        // Query flags are 0x0100 (offset 2-3); set a Z bit (0x0010).
+
         var bytes = dnsHexBytes(DNSVectors.queryExampleA)
         bytes[3] = Byte(0x10)
         #expect(throws: RFC_1035.Message.Error.nonzeroReserved) {
             _ = try RFC_1035.Message(binary: bytes)
         }
     }
-
-    // MARK: - CharacterString validation
 
     @Test
     func `a character-string longer than 255 octets is rejected`() {

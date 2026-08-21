@@ -1,43 +1,16 @@
-// ===----------------------------------------------------------------------===//
-//
-// Copyright (c) 2025 Coen ten Thije Boonkkamp
-// Licensed under Apache License v2.0
-//
-// See LICENSE.txt for license information
-// See CONTRIBUTORS.txt for the list of project contributors
-//
-// SPDX-License-Identifier: Apache-2.0
-//
-// ===----------------------------------------------------------------------===//
-
-// RFC_1035.Domain.Error.swift
-// swift-rfc-1035
-//
-// Domain-level validation errors
-
-// MARK: - Errors
-
 extension RFC_1035.Domain {
-    /// Errors that can occur during domain validation
-    ///
-    /// These represent compositional constraint violations at the domain level,
-    /// as defined by RFC 1035 Section 2.3.4.
+
     public enum Error: Swift.Error, Sendable, Equatable {
-        /// Domain has no labels (empty string)
+
         case empty
 
-        /// Domain exceeds maximum total length of 255 octets
         case tooLong(_ length: Int)
 
-        /// Domain has more than 127 labels
         case tooManyLabels
 
-        /// One or more labels failed validation
         case invalidLabel(_ error: Label.Error)
     }
 }
-
-// MARK: - CustomStringConvertible
 
 extension RFC_1035.Domain.Error: CustomStringConvertible {
     public var description: String {

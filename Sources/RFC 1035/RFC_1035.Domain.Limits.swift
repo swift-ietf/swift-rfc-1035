@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  swift-rfc-1035
-//
-//  Created by Coen ten Thije Boonkkamp on 28/11/2025.
-//
-
 extension RFC_1035.Domain {
     package enum Limits {
     }
