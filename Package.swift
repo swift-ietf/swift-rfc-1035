@@ -12,13 +12,13 @@ extension Target.Dependency {
         .product(name: "Standard Library Extensions", package: "swift-standard-library-extensions")
     }
     static var binary: Self {
-        .product(name: "Binary Primitives", package: "swift-binary-primitives")
+        .product(name: "Binary", package: "swift-binary")
     }
     static var incits41986: Self {
-        .product(name: "ASCII Serializer Primitives", package: "swift-ascii-serializer-primitives")
+        .product(name: "ASCII Serializer", package: "swift-ascii-serializer")
     }
     static var asciiParser: Self {
-        .product(name: "Parseable ASCII Primitives", package: "swift-ascii-parser-primitives")
+        .product(name: "Parseable ASCII", package: "swift-ascii-parser")
     }
 }
 
@@ -36,19 +36,19 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/swift-primitives/swift-standard-library-extensions.git",
+            url: "https://github.com/swift-molecules/swift-standard-library-extensions.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-primitives/swift-binary-primitives.git",
+            url: "https://github.com/swift-molecules/swift-binary.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-primitives/swift-ascii-serializer-primitives.git",
+            url: "https://github.com/swift-molecules/swift-ascii-serializer.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-primitives/swift-ascii-parser-primitives.git",
+            url: "https://github.com/swift-molecules/swift-ascii-parser.git",
             branch: "main"
         ),
     ],
