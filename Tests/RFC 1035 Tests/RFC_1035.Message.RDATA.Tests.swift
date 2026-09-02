@@ -15,35 +15,35 @@ struct `DNS RDATA and message structure` {
         let ns = Record(
             name: owner,
             type: .ns,
-            `class`: .internet,
+            class: .internet,
             ttl: 3600,
             data: .ns(try RFC_1035.Domain("ns1.example.com"))
         )
         let cname = Record(
             name: try RFC_1035.Domain("www.example.com"),
             type: .cname,
-            `class`: .internet,
+            class: .internet,
             ttl: 300,
             data: .cname(owner)
         )
         let ptr = Record(
             name: owner,
             type: .ptr,
-            `class`: .internet,
+            class: .internet,
             ttl: 60,
             data: .ptr(try RFC_1035.Domain("host.example.com"))
         )
         let mx = Record(
             name: owner,
             type: .mx,
-            `class`: .internet,
+            class: .internet,
             ttl: 3600,
             data: .mx(preference: 10, exchange: try RFC_1035.Domain("mail.example.com"))
         )
         let txt = Record(
             name: owner,
             type: .txt,
-            `class`: .internet,
+            class: .internet,
             ttl: 3600,
             data: .txt([
                 try RFC_1035.CharacterString("v=spf1 -all"), try RFC_1035.CharacterString("hello"),
@@ -52,7 +52,7 @@ struct `DNS RDATA and message structure` {
         let soa = Record(
             name: owner,
             type: .soa,
-            `class`: .internet,
+            class: .internet,
             ttl: 3600,
             data: .soa(
                 RFC_1035.ResourceRecord.SOA(
@@ -69,16 +69,16 @@ struct `DNS RDATA and message structure` {
         let a = Record(
             name: owner,
             type: .a,
-            `class`: .internet,
+            class: .internet,
             ttl: 3600,
             data: .a(RFC_1035.ResourceRecord.A(93, 184, 216, 34))
         )
         let opaque = Record(
             name: owner,
             type: RFC_1035.RecordType(rawValue: 99),
-            `class`: .internet,
+            class: .internet,
             ttl: 3600,
-            data: .opaque([Byte(0xDE), Byte(0xAD), Byte(0xBE), Byte(0xEF)])
+            data: .opaque([Byte(bitPattern: 0xDE), Byte(bitPattern: 0xAD), Byte(bitPattern: 0xBE), Byte(bitPattern: 0xEF)])
         )
 
         let message = RFC_1035.Message(
@@ -101,7 +101,7 @@ struct `DNS RDATA and message structure` {
 
         #expect(parsed.answers[7].type == RFC_1035.RecordType(rawValue: 99))
         #expect(
-            parsed.answers[7].data == .opaque([Byte(0xDE), Byte(0xAD), Byte(0xBE), Byte(0xEF)])
+            parsed.answers[7].data == .opaque([Byte(bitPattern: 0xDE), Byte(bitPattern: 0xAD), Byte(bitPattern: 0xBE), Byte(bitPattern: 0xEF)])
         )
     }
 
@@ -116,7 +116,7 @@ struct `DNS RDATA and message structure` {
         let record = Record(
             name: owner,
             type: .txt,
-            `class`: .internet,
+            class: .internet,
             ttl: 3600,
             data: .txt(strings)
         )
@@ -143,7 +143,7 @@ struct `DNS RDATA and message structure` {
     @Test
     func `trailing bytes after a complete message are rejected`() {
         var bytes = dnsHexBytes(DNSVectors.queryExampleA)
-        bytes.append(Byte(0xFF))
+        bytes.append(Byte(bitPattern: 0xFF))
         #expect(throws: RFC_1035.Message.Error.trailingData(1)) {
             _ = try RFC_1035.Message(binary: bytes)
         }
@@ -153,7 +153,7 @@ struct `DNS RDATA and message structure` {
     func `an ANCOUNT smaller than the records present leaves trailing data`() {
 
         var bytes = dnsHexBytes(DNSVectors.responseExampleA)
-        bytes[7] = Byte(0x01)
+        bytes[7] = Byte(bitPattern: 0x01)
         #expect(throws: RFC_1035.Message.Error.trailingData(16)) {
             _ = try RFC_1035.Message(binary: bytes)
         }
@@ -162,7 +162,7 @@ struct `DNS RDATA and message structure` {
     @Test
     func `an ANCOUNT larger than the records present truncates`() {
         var bytes = dnsHexBytes(DNSVectors.responseExampleA)
-        bytes[7] = Byte(0x03)
+        bytes[7] = Byte(bitPattern: 0x03)
         #expect(throws: RFC_1035.Message.Error.truncated) {
             _ = try RFC_1035.Message(binary: bytes)
         }
@@ -172,7 +172,7 @@ struct `DNS RDATA and message structure` {
     func `a nonzero Z bit in the header is rejected`() {
 
         var bytes = dnsHexBytes(DNSVectors.queryExampleA)
-        bytes[3] = Byte(0x10)
+        bytes[3] = Byte(bitPattern: 0x10)
         #expect(throws: RFC_1035.Message.Error.nonzeroReserved) {
             _ = try RFC_1035.Message(binary: bytes)
         }
@@ -180,7 +180,7 @@ struct `DNS RDATA and message structure` {
 
     @Test
     func `a character-string longer than 255 octets is rejected`() {
-        let tooLong = [Byte](repeating: Byte(0x61), count: 256)
+        let tooLong = [Byte](repeating: Byte(bitPattern: 0x61), count: 256)
         #expect(throws: RFC_1035.CharacterString.Error.tooLong(256)) {
             _ = try RFC_1035.CharacterString(bytes: tooLong)
         }
@@ -189,7 +189,7 @@ struct `DNS RDATA and message structure` {
     @Test
     func `an A record requires exactly four octets`() {
         #expect(throws: RFC_1035.ResourceRecord.A.Error.invalidOctetCount(3)) {
-            _ = try RFC_1035.ResourceRecord.A(octets: [Byte(1), Byte(2), Byte(3)])
+            _ = try RFC_1035.ResourceRecord.A(octets: [Byte(bitPattern: 1), Byte(bitPattern: 2), Byte(bitPattern: 3)])
         }
     }
 }

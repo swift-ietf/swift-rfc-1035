@@ -14,6 +14,15 @@ extension Target.Dependency {
     static var binary: Self {
         .product(name: "Binary", package: "swift-binary")
     }
+    static var binaryEndianness: Self {
+        .product(name: "Binary Endianness", package: "swift-binary")
+    }
+    static var binaryStandardLibraryIntegration: Self {
+        .product(name: "Binary Standard Library Integration", package: "swift-binary")
+    }
+    static var byteStandardLibraryIntegration: Self {
+        .product(name: "Byte Standard Library Integration", package: "swift-byte")
+    }
     static var incits41986: Self {
         .product(name: "ASCII Serializer", package: "swift-ascii-serializer")
     }
@@ -40,7 +49,11 @@ let package = Package(
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-molecules/swift-binary.git",
+            url: "https://github.com/swift-atoms/swift-binary.git",
+            branch: "main"
+        ),
+        .package(
+            url: "https://github.com/swift-atoms/swift-byte.git",
             branch: "main"
         ),
         .package(
@@ -58,6 +71,9 @@ let package = Package(
             dependencies: [
                 .standards,
                 .binary,
+                .binaryEndianness,
+                .binaryStandardLibraryIntegration,
+                .byteStandardLibraryIntegration,
                 .incits41986,
                 .asciiParser,
             ]
@@ -71,11 +87,6 @@ let package = Package(
     ],
     swiftLanguageModes: [.v6]
 )
-
-extension String {
-    var tests: Self { self + " Tests" }
-    var foundation: Self { self + " Foundation" }
-}
 
 for target in package.targets where ![.system, .binary, .plugin, .macro].contains(target.type) {
     let ecosystem: [SwiftSetting] = [

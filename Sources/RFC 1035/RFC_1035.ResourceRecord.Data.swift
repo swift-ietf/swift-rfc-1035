@@ -1,4 +1,6 @@
+public import Binary_Endianness
 public import Binary_Serializable
+import Binary_Standard_Library_Integration
 
 extension RFC_1035.ResourceRecord {
 

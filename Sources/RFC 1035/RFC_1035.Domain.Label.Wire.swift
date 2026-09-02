@@ -6,7 +6,7 @@ extension RFC_1035.Domain.Label {
         var presentation = ""
         presentation.reserveCapacity(octets.count)
         for octet in octets {
-            let value = octet.underlying
+            let value = octet.bitPattern
             switch value {
             case 0x2E, 0x5C:
                 presentation.append("\\")
@@ -33,7 +33,7 @@ extension RFC_1035.Domain.Label {
         while index < scalars.count {
             let scalar = scalars[index]
             guard scalar == 0x5C, index + 1 < scalars.count else {
-                octets.append(Byte(scalar))
+                octets.append(Byte(bitPattern: scalar))
                 index += 1
                 continue
             }
@@ -48,11 +48,11 @@ extension RFC_1035.Domain.Label {
                     UInt16(next - 0x30) * 100
                     + UInt16(scalars[index + 2] - 0x30) * 10
                     + UInt16(scalars[index + 3] - 0x30)
-                octets.append(Byte(UInt8(truncatingIfNeeded: value)))
+                octets.append(Byte(bitPattern: UInt8(truncatingIfNeeded: value)))
                 index += 4
             } else {
 
-                octets.append(Byte(next))
+                octets.append(Byte(bitPattern: next))
                 index += 2
             }
         }

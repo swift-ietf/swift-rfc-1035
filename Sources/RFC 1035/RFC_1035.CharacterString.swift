@@ -34,7 +34,7 @@ extension RFC_1035.CharacterString: Binary.Serializable {
         _ value: Self,
         into buffer: inout Buffer
     ) where Buffer.Element == Byte {
-        buffer.append(Byte(UInt8(truncatingIfNeeded: value.bytes.count)))
+        buffer.append(Byte(bitPattern: UInt8(truncatingIfNeeded: value.bytes.count)))
         buffer.append(contentsOf: value.bytes)
     }
 }

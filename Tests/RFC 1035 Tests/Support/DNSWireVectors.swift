@@ -8,7 +8,7 @@ func dnsHexBytes(_ hex: String) -> [Byte] {
         guard let value = UInt8(String([high, low]), radix: 16) else {
             continue
         }
-        result.append(Byte(value))
+        result.append(Byte(bitPattern: value))
     }
     return result
 }
@@ -17,7 +17,7 @@ func dnsHexString(_ bytes: [Byte]) -> String {
     var out = ""
     out.reserveCapacity(bytes.count * 2)
     for byte in bytes {
-        let value = byte.underlying
+        let value = byte.bitPattern
         out.append(hexDigit(value >> 4))
         out.append(hexDigit(value & 0x0F))
     }

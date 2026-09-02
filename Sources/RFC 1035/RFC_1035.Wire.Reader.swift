@@ -22,7 +22,7 @@ extension RFC_1035.Wire.Reader {
     mutating func byte() throws(RFC_1035.Wire.Error) -> UInt8 {
         guard index < bytes.count else { throw .truncated }
         defer { index += 1 }
-        return bytes[index].underlying
+        return bytes[index].bitPattern
     }
 
     mutating func uint16() throws(RFC_1035.Wire.Error) -> UInt16 {
@@ -71,7 +71,7 @@ extension RFC_1035.Wire.Reader {
 
         while true {
             guard position < bytes.count else { throw .truncated }
-            let lengthOctet = bytes[position].underlying
+            let lengthOctet = bytes[position].bitPattern
 
             switch lengthOctet & Self.discriminantMask {
             case Self.labelDiscriminant:
@@ -97,7 +97,7 @@ extension RFC_1035.Wire.Reader {
                 guard position + 1 < bytes.count else { throw .truncated }
                 let offset =
                     (Int(lengthOctet & Self.lengthMask) << 8)
-                    | Int(bytes[position + 1].underlying)
+                    | Int(bytes[position + 1].bitPattern)
                 guard offset < position else { throw .pointerNotBackward }
                 guard position < lowestPointerPosition else { throw .pointerLoop }
                 lowestPointerPosition = position

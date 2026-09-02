@@ -29,7 +29,7 @@ extension RFC_1035.Domain.Label.Error: CustomStringConvertible {
 
         case .invalidCharacters(let label, let byte, let reason):
             return
-                "Domain label '\(label)' has invalid byte 0x\(String(byte, radix: 16)): \(reason)"
+                "Domain label '\(label)' has invalid byte 0x\(String(byte.bitPattern, radix: 16)): \(reason)"
 
         case .startsWithHyphen(let label):
             return "Domain label '\(label)' cannot start with a hyphen"

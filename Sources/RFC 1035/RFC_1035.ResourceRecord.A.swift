@@ -17,7 +17,7 @@ extension RFC_1035.ResourceRecord.A {
     public static let octetCount = 4
 
     public init(_ a: UInt8, _ b: UInt8, _ c: UInt8, _ d: UInt8) {
-        self.init(__unchecked: (), octets: [Byte(a), Byte(b), Byte(c), Byte(d)])
+        self.init(__unchecked: (), octets: [Byte(bitPattern: a), Byte(bitPattern: b), Byte(bitPattern: c), Byte(bitPattern: d)])
     }
 
     public init(octets: [Byte]) throws(Error) {
@@ -41,6 +41,6 @@ extension RFC_1035.ResourceRecord.A: Binary.Serializable {
 extension RFC_1035.ResourceRecord.A: CustomStringConvertible {
 
     public var description: String {
-        octets.map { String($0.underlying) }.joined(separator: ".")
+        octets.map { String($0.bitPattern) }.joined(separator: ".")
     }
 }
