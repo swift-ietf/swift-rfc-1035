@@ -2,35 +2,6 @@
 
 import PackageDescription
 
-extension String {
-    static let rfc1035: Self = "RFC 1035"
-}
-
-extension Target.Dependency {
-    static var rfc1035: Self { .target(name: .rfc1035) }
-    static var standards: Self {
-        .product(name: "Standard Library Extensions", package: "swift-standard-library-extensions")
-    }
-    static var binary: Self {
-        .product(name: "Binary", package: "swift-binary")
-    }
-    static var binaryEndianness: Self {
-        .product(name: "Binary Endianness", package: "swift-binary")
-    }
-    static var binaryStandardLibraryIntegration: Self {
-        .product(name: "Binary Standard Library Integration", package: "swift-binary")
-    }
-    static var byteStandardLibraryIntegration: Self {
-        .product(name: "Byte Standard Library Integration", package: "swift-byte")
-    }
-    static var incits41986: Self {
-        .product(name: "ASCII Serializer", package: "swift-ascii-serializer")
-    }
-    static var asciiParser: Self {
-        .product(name: "Parseable ASCII", package: "swift-ascii-parser")
-    }
-}
-
 let package = Package(
     name: "swift-rfc-1035",
     platforms: [
@@ -69,19 +40,19 @@ let package = Package(
         .target(
             name: "RFC 1035",
             dependencies: [
-                .standards,
-                .binary,
-                .binaryEndianness,
-                .binaryStandardLibraryIntegration,
-                .byteStandardLibraryIntegration,
-                .incits41986,
-                .asciiParser,
+                .product(name: "Standard Library Extensions", package: "swift-standard-library-extensions"),
+                .product(name: "Binary", package: "swift-binary"),
+                .product(name: "Binary Endianness", package: "swift-binary"),
+                .product(name: "Binary Standard Library Integration", package: "swift-binary"),
+                .product(name: "Byte Standard Library Integration", package: "swift-byte"),
+                .product(name: "ASCII Serializer", package: "swift-ascii-serializer"),
+                .product(name: "Parseable ASCII", package: "swift-ascii-parser"),
             ]
         ),
         .testTarget(
             name: "RFC 1035 Tests",
             dependencies: [
-                "RFC 1035"
+                .target(name: "RFC 1035")
             ]
         ),
     ],
