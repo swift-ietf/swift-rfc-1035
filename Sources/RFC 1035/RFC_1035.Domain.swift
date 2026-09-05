@@ -1,15 +1,14 @@
-public import ASCII_Serializer
-public import Binary_Serializable
+public import Byte
+import ASCII
 import Byte_Standard_Library_Integration
-public import Parseable_ASCII
 
 extension RFC_1035 {
 
-    public struct Domain: Sendable, Codable {
+    public struct Domain: Sendable {
 
         public let rawValue: String
 
-        package let labels: [RFC_1035.Domain.Label]
+        public let labels: [RFC_1035.Domain.Label]
 
         init(
             __unchecked _: Void,
@@ -32,44 +31,19 @@ extension RFC_1035.Domain: Hashable {
         lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
     }
 
-    public static func == (lhs: Self, rhs: Self.RawValue) -> Bool {
+    public static func == (lhs: Self, rhs: String) -> Bool {
         lhs.rawValue.lowercased() == rhs.lowercased()
-    }
-}
-
-extension RFC_1035.Domain: Swift.RawRepresentable, ASCII.Serializable, Binary.Serializable {
-
-    public init?(rawValue: String) {
-        do throws(Error) {
-            try self.init(rawValue)
-        } catch {
-            return nil
-        }
-    }
-
-    public static func serialize<Buffer: RangeReplaceableCollection>(
-        _ value: Self,
-        into buffer: inout Buffer
-    ) where Buffer.Element == ASCII.Code {
-        for byte in value.rawValue.utf8 { buffer.append(ASCII.Code(byte)) }
-    }
-
-    public static func serialize<Buffer: RangeReplaceableCollection>(
-        _ value: Self,
-        into buffer: inout Buffer
-    ) where Buffer.Element == Byte {
-        buffer.append(contentsOf: value.serialized)
     }
 }
 
 extension RFC_1035.Domain: CustomStringConvertible {
 
     public var description: String {
-        String(decoding: serialized, as: UTF8.self)
+        rawValue
     }
 }
 
-extension RFC_1035.Domain: ASCII.Parseable {
+extension RFC_1035.Domain {
 
     public init(_ string: some StringProtocol) throws(Error) {
         try self.init(ascii: string.utf8.map(Byte.init(bitPattern:)))
@@ -200,6 +174,10 @@ extension RFC_1035.Domain {
 extension RFC_1035.Domain {
 
     public static let root = RFC_1035.Domain(__unchecked: (), rawValue: ".", labels: [])
+
+    public var isRoot: Bool {
+        labels.isEmpty
+    }
 }
 
 extension RFC_1035.Domain {

@@ -1,4 +1,3 @@
-import Foundation
 import RFC_1035
 import Testing
 
@@ -45,6 +44,19 @@ struct `RFC 1035 Domain Tests` {
     }
 
     @Test
+    func `Exposes its labels in presentation order`() throws {
+        let domain = try RFC_1035.Domain("api.example.com")
+        #expect(domain.labels.map(\.rawValue) == ["api", "example", "com"])
+    }
+
+    @Test
+    func `Describes itself as its name`() throws {
+        let domain = try RFC_1035.Domain("Example.COM")
+        #expect(domain.description == "Example.COM")
+        #expect(domain == "example.com")
+    }
+
+    @Test
     func `Fails with empty domain`() throws {
         #expect(throws: RFC_1035.Domain.Error.empty) {
             _ = try RFC_1035.Domain("")
@@ -79,6 +91,13 @@ struct `RFC 1035 Domain Tests` {
     func `Fails with invalid label ending with hyphen`() throws {
         #expect(throws: RFC_1035.Domain.Error.invalidLabel(.endsWithHyphen("example-"))) {
             _ = try RFC_1035.Domain("example-.com")
+        }
+    }
+
+    @Test
+    func `Fails with invalid label starting with digit`() throws {
+        #expect(throws: RFC_1035.Domain.Error.invalidLabel(.startsWithDigit("3com"))) {
+            _ = try RFC_1035.Domain("3com.com")
         }
     }
 
@@ -123,10 +142,16 @@ struct `RFC 1035 Domain Tests` {
     }
 
     @Test
-    func `Successfully encodes and decodes`() throws {
-        let original = try RFC_1035.Domain("example.com")
-        let encoded = try JSONEncoder().encode(original)
-        let decoded = try JSONDecoder().decode(RFC_1035.Domain.self, from: encoded)
-        #expect(original == decoded)
+    func `The root name has no labels`() {
+        #expect(RFC_1035.Domain.root.isRoot)
+        #expect(RFC_1035.Domain.root.labels.isEmpty)
+        #expect(RFC_1035.Domain.root.name == ".")
+    }
+
+    @Test
+    func `Limits follow section 2.3.4`() {
+        #expect(RFC_1035.Domain.Limits.maxLength == 255)
+        #expect(RFC_1035.Domain.Limits.maxLabels == 127)
+        #expect(RFC_1035.Domain.Limits.maxLabelLength == 63)
     }
 }

@@ -16,8 +16,3 @@ extension RFC_1035.Message.Header {
         public static let recursionAvailable = Self(rawValue: 0x0080)
     }
 }
-
-extension RFC_1035.Message.Header.Options {
-
-    static let mask: UInt16 = 0x0780
-}

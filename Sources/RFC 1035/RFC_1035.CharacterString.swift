@@ -1,4 +1,4 @@
-public import Binary_Serializable
+public import Byte
 
 extension RFC_1035 {
 
@@ -24,17 +24,6 @@ extension RFC_1035.CharacterString {
     }
 
     public init(_ text: some StringProtocol) throws(Error) {
-        try self.init(bytes: text.utf8.map(Byte.init))
-    }
-}
-
-extension RFC_1035.CharacterString: Binary.Serializable {
-
-    public static func serialize<Buffer: RangeReplaceableCollection>(
-        _ value: Self,
-        into buffer: inout Buffer
-    ) where Buffer.Element == Byte {
-        buffer.append(Byte(bitPattern: UInt8(truncatingIfNeeded: value.bytes.count)))
-        buffer.append(contentsOf: value.bytes)
+        try self.init(bytes: text.utf8.map(Byte.init(bitPattern:)))
     }
 }

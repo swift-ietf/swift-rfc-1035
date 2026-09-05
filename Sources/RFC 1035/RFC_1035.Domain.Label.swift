@@ -1,11 +1,10 @@
-public import ASCII_Serializer
-public import Binary_Serializable
+public import Byte
+import ASCII
 import Byte_Standard_Library_Integration
-public import Parseable_ASCII
 
 extension RFC_1035.Domain {
 
-    public struct Label: Sendable, Codable {
+    public struct Label: Sendable {
 
         public let rawValue: String
 
@@ -28,48 +27,23 @@ extension RFC_1035.Domain.Label: Hashable {
         lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
     }
 
-    public static func == (lhs: Self, rhs: Self.RawValue) -> Bool {
+    public static func == (lhs: Self, rhs: String) -> Bool {
         lhs.rawValue.lowercased() == rhs.lowercased()
     }
 
-    public static func == (lhs: Self.RawValue, rhs: Self) -> Bool {
+    public static func == (lhs: String, rhs: Self) -> Bool {
         lhs.lowercased() == rhs.rawValue.lowercased()
-    }
-}
-
-extension RFC_1035.Domain.Label: Swift.RawRepresentable, ASCII.Serializable, Binary.Serializable {
-
-    public init?(rawValue: String) {
-        do throws(Error) {
-            try self.init(rawValue)
-        } catch {
-            return nil
-        }
-    }
-
-    public static func serialize<Buffer: RangeReplaceableCollection>(
-        _ value: Self,
-        into buffer: inout Buffer
-    ) where Buffer.Element == ASCII.Code {
-        for byte in value.rawValue.utf8 { buffer.append(ASCII.Code(byte)) }
-    }
-
-    public static func serialize<Buffer: RangeReplaceableCollection>(
-        _ value: Self,
-        into buffer: inout Buffer
-    ) where Buffer.Element == Byte {
-        buffer.append(contentsOf: value.serialized)
     }
 }
 
 extension RFC_1035.Domain.Label: CustomStringConvertible {
 
     public var description: String {
-        String(decoding: serialized, as: UTF8.self)
+        rawValue
     }
 }
 
-extension RFC_1035.Domain.Label: ASCII.Parseable {
+extension RFC_1035.Domain.Label {
 
     public init(_ string: some StringProtocol) throws(Error) {
         try self.init(ascii: string.utf8.map(Byte.init(bitPattern:)))

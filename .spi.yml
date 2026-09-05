@@ -3,3 +3,4 @@ builder:
   configs:
   - documentation_targets:
     - RFC 1035
+    - RFC 1035 Foundation Integration

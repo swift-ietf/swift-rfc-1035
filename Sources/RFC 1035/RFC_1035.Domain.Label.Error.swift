@@ -1,4 +1,4 @@
-import Standard_Library_Extensions
+public import Byte
 
 extension RFC_1035.Domain.Label {
 

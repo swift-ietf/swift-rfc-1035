@@ -1,4 +1,4 @@
-public import Binary_Serializable
+public import Byte
 
 extension RFC_1035.ResourceRecord {
 
@@ -25,16 +25,6 @@ extension RFC_1035.ResourceRecord.A {
             throw .invalidOctetCount(octets.count)
         }
         self.init(__unchecked: (), octets: octets)
-    }
-}
-
-extension RFC_1035.ResourceRecord.A: Binary.Serializable {
-
-    public static func serialize<Buffer: RangeReplaceableCollection>(
-        _ value: Self,
-        into buffer: inout Buffer
-    ) where Buffer.Element == Byte {
-        buffer.append(contentsOf: value.octets)
     }
 }
 

@@ -1,8 +1,12 @@
-internal import Binary_Serializable
+public import Byte
 
 extension RFC_1035.Domain.Label {
 
-    init(wire octets: some Swift.Collection<Byte>) {
+    public init(octets: some Swift.Collection<Byte>) throws(Error) {
+        guard !octets.isEmpty else {
+            throw Error.empty
+        }
+
         var presentation = ""
         presentation.reserveCapacity(octets.count)
         for octet in octets {
@@ -22,10 +26,15 @@ extension RFC_1035.Domain.Label {
                 presentation.append(decimal)
             }
         }
+
+        guard octets.count <= RFC_1035.Domain.Limits.maxLabelLength else {
+            throw Error.tooLong(octets.count, label: presentation)
+        }
+
         self.init(__unchecked: (), rawValue: presentation)
     }
 
-    var wireOctets: [Byte] {
+    public var octets: [Byte] {
         let scalars = Array(rawValue.utf8)
         var octets: [Byte] = []
         octets.reserveCapacity(scalars.count)

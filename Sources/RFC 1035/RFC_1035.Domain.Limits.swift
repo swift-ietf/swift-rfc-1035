@@ -1,10 +1,10 @@
 extension RFC_1035.Domain {
-    package enum Limits {
+    public enum Limits {
     }
 }
 
 extension RFC_1035.Domain.Limits {
-    static let maxLength = 255
-    static let maxLabels = 127
-    static let maxLabelLength = 63
+    public static let maxLength = 255
+    public static let maxLabels = 127
+    public static let maxLabelLength = 63
 }
