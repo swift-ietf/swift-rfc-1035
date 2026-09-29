@@ -31,7 +31,7 @@ let package = Package(
             dependencies: [
                 .product(name: "ASCII", package: "swift-ascii"),
                 .product(name: "Byte", package: "swift-byte"),
-                .product(name: "Byte Standard Library Integration", package: "swift-byte"),
+                .product(name: "Byte", package: "swift-byte"),
             ]
         ),
         .target(
@@ -52,7 +52,7 @@ let package = Package(
             dependencies: [
                 "RFC 1035",
                 .product(name: "Byte", package: "swift-byte"),
-                .product(name: "Byte Standard Library Integration", package: "swift-byte"),
+                .product(name: "Byte", package: "swift-byte"),
             ]
         ),
     ],
