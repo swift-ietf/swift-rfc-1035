@@ -1,6 +1,6 @@
 extension RFC_1035.CharacterString {
 
-    public enum Error: Swift.Error, Sendable, Equatable {
+    public enum Error: Swift::Error, Sendable, Equatable {
 
         case tooLong(_ length: Int)
     }

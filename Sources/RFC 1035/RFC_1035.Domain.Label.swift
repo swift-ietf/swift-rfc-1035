@@ -1,6 +1,5 @@
 public import Byte
 import ASCII
-import Byte
 
 extension RFC_1035.Domain {
 
@@ -49,7 +48,7 @@ extension RFC_1035.Domain.Label {
         try self.init(ascii: string.utf8.map(Byte.init(bitPattern:)))
     }
 
-    public init<Bytes: Swift.Collection>(ascii bytes: Bytes) throws(Error)
+    public init<Bytes: Swift::Collection>(ascii bytes: Bytes) throws(Error)
     where Bytes.Element == Byte {
         guard let firstByte = bytes.first else {
             throw Error.empty

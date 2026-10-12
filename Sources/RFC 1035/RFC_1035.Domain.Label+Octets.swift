@@ -2,7 +2,7 @@ public import Byte
 
 extension RFC_1035.Domain.Label {
 
-    public init(octets: some Swift.Collection<Byte>) throws(Error) {
+    public init(octets: some Swift::Collection<Byte>) throws(Error) {
         guard !octets.isEmpty else {
             throw Error.empty
         }

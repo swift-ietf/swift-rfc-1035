@@ -1,6 +1,5 @@
 public import Byte
 import ASCII
-import Byte
 
 extension RFC_1035 {
 
@@ -49,7 +48,7 @@ extension RFC_1035.Domain {
         try self.init(ascii: string.utf8.map(Byte.init(bitPattern:)))
     }
 
-    public init<Bytes: Swift.Collection>(ascii bytes: Bytes) throws(Error)
+    public init<Bytes: Swift::Collection>(ascii bytes: Bytes) throws(Error)
     where Bytes.Element == Byte {
 
         guard !bytes.isEmpty else {
@@ -199,7 +198,7 @@ extension RFC_1035.Domain {
         self.init(__unchecked: (), rawValue: name, labels: labels)
     }
 
-    public init<S: Swift.Sequence>(labels labelStrings: S) throws(Error)
+    public init<S: Swift::Sequence>(labels labelStrings: S) throws(Error)
     where S.Element: StringProtocol {
         var validatedLabels: [Label] = []
         for labelString in labelStrings {
