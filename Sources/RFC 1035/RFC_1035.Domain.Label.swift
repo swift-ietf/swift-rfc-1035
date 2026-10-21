@@ -1,5 +1,5 @@
-public import Byte
 import ASCII
+public import Byte
 
 extension RFC_1035.Domain {
 
@@ -129,13 +129,12 @@ extension RFC_1035.Domain.Label {
             let string = String(decoding: bytes, as: UTF8.self)
             if lastCode == ASCII.Code.hyphen {
                 throw Error.endsWithHyphen(string)
-            } else {
-                throw Error.invalidCharacters(
-                    string,
-                    byte: lastByte,
-                    reason: "Must end with a letter or digit"
-                )
             }
+            throw Error.invalidCharacters(
+                string,
+                byte: lastByte,
+                reason: "Must end with a letter or digit"
+            )
         }
 
         self.init(__unchecked: (), rawValue: String(decoding: bytes, as: UTF8.self))
