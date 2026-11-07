@@ -10,10 +10,17 @@
 
     @Suite
     struct `RFC_1035.Message.Coder Tests` {
+    }
+
+    extension `RFC_1035.Message.Coder Tests` {
         @Suite struct `Captured Vectors` {}
+
         @Suite struct `RDATA` {}
+
         @Suite struct `Structure` {}
+
         @Suite struct `Name Compression` {}
+
         @Suite struct `Wire Labels` {}
     }
 
