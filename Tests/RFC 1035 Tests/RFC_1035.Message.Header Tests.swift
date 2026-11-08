@@ -2,9 +2,9 @@
     import RFC_1035
     import Testing
 
-enum `RFC_1035.Message.Header Tests` {}
+    enum `RFC_1035.Message.Header Tests` {}
 
-extension `RFC_1035.Message.Header Tests` {
+    extension `RFC_1035.Message.Header Tests` {
         @Suite
         struct `RFC_1035.Message.Header Flags Tests` {
 
@@ -115,5 +115,5 @@ extension `RFC_1035.Message.Header Tests` {
                 }
             }
         }
-}
+    }
 #endif
