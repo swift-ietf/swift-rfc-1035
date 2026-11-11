@@ -143,7 +143,7 @@ extension RFC_1035.Domain {
             throw Error.tooManyLabels
         }
 
-        let newName = (components + labels.map(\.rawValue)).joined(separator: ".")
+        let newName = (components + labels.map({ $0.rawValue })).joined(separator: ".")
         guard newName.count <= Limits.maxLength else {
             throw Error.tooLong(newName.count)
         }
@@ -158,14 +158,14 @@ extension RFC_1035.Domain {
     public func parent() throws(Error) -> RFC_1035.Domain? {
         guard labels.count > 1 else { return nil }
         let parentLabels = Array(labels.dropFirst())
-        let parentName = parentLabels.map(\.rawValue).joined(separator: ".")
+        let parentName = parentLabels.map({ $0.rawValue }).joined(separator: ".")
         return RFC_1035.Domain(__unchecked: (), rawValue: parentName, labels: parentLabels)
     }
 
     public func root() throws(Error) -> RFC_1035.Domain? {
         guard labels.count >= 2 else { return nil }
         let rootLabels = Array(labels.suffix(2))
-        let rootName = rootLabels.map(\.rawValue).joined(separator: ".")
+        let rootName = rootLabels.map({ $0.rawValue }).joined(separator: ".")
         return RFC_1035.Domain(__unchecked: (), rawValue: rootName, labels: rootLabels)
     }
 }
@@ -190,7 +190,7 @@ extension RFC_1035.Domain {
             throw Error.tooManyLabels
         }
 
-        let name = labels.map(\.rawValue).joined(separator: ".")
+        let name = labels.map({ $0.rawValue }).joined(separator: ".")
         guard name.count <= Limits.maxLength else {
             throw Error.tooLong(name.count)
         }
